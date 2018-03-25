@@ -1,0 +1,21 @@
+{
+  "fitbit": {
+    "appUUID": "1309f530-6405-42b7-8526-6cfc6db74197",
+    "appType": "clockface",
+    "appDisplayName": "Dark Side",
+    "iconFile": "resources/icon.png",
+    "wipeColor": "",
+    "requestedPermissions": [
+      "access_activity"
+    ],
+    "buildTargets": [
+      "higgs",
+      "meson"
+    ],
+    "i18n": {
+      "en": {
+        "name": "Dark Side"
+      }
+    }
+  }
+}
