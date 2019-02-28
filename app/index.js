@@ -107,7 +107,7 @@ function updateActivity(activity) {
        battery_bar.width = 0;
        break;
     default:
-       battery_bar.width = (device.modelName === 'Ionic'? 122: 88) * (goals[activity] - today.local[activity])/goals[activity];
+       battery_bar.width = (device.modelName === 'Ionic'? 122: 88) * (goals[activity] - today.adjusted[activity])/goals[activity];
        break;
   }
   
