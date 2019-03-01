@@ -1,14 +1,13 @@
 // importing libraries
 import clock from "clock";
 import document from "document";
-import { preferences } from "user-settings";
+import { preferences as user_settings} from "user-settings";
 import { battery } from "power";
 import { me as device } from "device";
-import * as messaging from "messaging";
-import * as fs from "fs";
-import { me } from "appbit";
 import { goals, today } from "user-activity";
-import dtlib from "../common/datetimelib"
+import dtlib from "../common/datetimelib";
+import {preferences} from "fitbit-preferences";
+import asap from "fitbit-asap/app";
 
 // getting UI elementys
 const timelbl = document.getElementById("timelbl");
@@ -18,79 +17,59 @@ const battery_bar = document.getElementById("battery_bar");
 const activityIcon = document.getElementById("activityIcon");
 
 
-// on app exit collect settings 
-me.onunload = () => {
-  fs.writeFileSync("user_settings.json", userSettings, "json");
-}
-
-
 // Message is received
-messaging.peerSocket.onmessage = evt => {
+asap.onmessage = data => {
   
-  switch (evt.data.key) {
+  switch (data.key) {
     case "timecolor": 
-          userSettings[evt.data.key] = evt.data.newValue.replace(/["']/g, "");
-          timelbl.style.fill = userSettings.timecolor;
+          preferences.p[data.key] = data.newValue.replace(/["']/g, "");
+          timelbl.style.fill = preferences.p.timecolor;
           break;
      case "datecolor": 
-          userSettings[evt.data.key] = evt.data.newValue.replace(/["']/g, "");
-          datelbl.style.fill = userSettings.datecolor;
+          preferences.p[data.key] = data.newValue.replace(/["']/g, "");
+          datelbl.style.fill = preferences.p.datecolor;
           break;
      case "dowcolor": 
-          userSettings[evt.data.key] = evt.data.newValue.replace(/["']/g, "");
-          dowlbl.style.fill = userSettings.dowcolor;
+          preferences.p[data.key] = data.newValue.replace(/["']/g, "");
+          dowlbl.style.fill = preferences.p.dowcolor;
           break;
       case "iconcolor": 
-          userSettings[evt.data.key] = evt.data.newValue.replace(/["']/g, "");
-          activityIcon.style.fill = userSettings.iconcolor;
+          preferences.p[data.key] = data.newValue.replace(/["']/g, "");
+          activityIcon.style.fill = preferences.p.iconcolor;
           break;
      case "showActivity":
-          userSettings.showActivity = JSON.parse(evt.data.newValue).values[0].value;
-          showHideActivityIcon(userSettings.showActivity);
-          updateActivity(userSettings.showActivity);
+          let activity = JSON.parse(data.newValue).values[0].value;
+
+          if (activity === "elevationGain" && today.adjusted.elevationGain === undefined) {
+            break
+          }
+     
+          preferences.p.showActivity = activity;
+          showHideActivityIcon(preferences.p.showActivity);
+          updateActivity(preferences.p.showActivity);
           updateBattery(Math.floor(battery.chargeLevel))
           break;
   };
 }
 
-// Message socket opens
-messaging.peerSocket.onopen = () => {
-  console.log("App Socket Open");
-};
-
-// Message socket closes
-messaging.peerSocket.close = () => {
-  console.log("App Socket Closed");
-};
-
-
 
 // trying to get user settings if saved before
-let userSettings;
-try {
-  userSettings = fs.readFileSync("user_settings.json", "json");
-} catch (e) {
-  userSettings = {timecolor: "#ffffff", datecolor: "#ffffff", dowcolor: "#ffffff", iconcolor: "#ffffff", showActivity:"battery"}
-}
-
-
-//trap
-if (!userSettings.dowcolor) {
-  userSettings = {timecolor: "#ffffff", datecolor: "#ffffff", dowcolor: "#ffffff", iconcolor: "#ffffff", showActivity:"battery"}
+if (!preferences.p) {
+  preferences.p =  {timecolor: "#ffffff", datecolor: "#ffffff", dowcolor: "#ffffff", iconcolor: "#ffffff", showActivity:"battery"}
 }
 
 // initial color and icon settings
-timelbl.style.fill = userSettings.timecolor;
-datelbl.style.fill = userSettings.datecolor;
-dowlbl.style.fill = userSettings.dowcolor;
-activityIcon.style.fill = userSettings.iconcolor;
-showHideActivityIcon(userSettings.showActivity);
+timelbl.style.fill = preferences.p.timecolor;
+datelbl.style.fill = preferences.p.datecolor;
+dowlbl.style.fill = preferences.p.dowcolor;
+activityIcon.style.fill = preferences.p.iconcolor;
+showHideActivityIcon(preferences.p.showActivity);
 
 
 function updateBattery(charge) {
-  switch (userSettings.showActivity){
+  switch (preferences.p.showActivity){
     case 'battery':
-       battery_bar.width = (device.modelName === 'Ionic'? 122: 88)*(100-charge)/100;
+       battery_bar.width = (device.screen.width === 348? 122: 88)*(100-charge)/100;
        break;
     case 'disabled':
        battery_bar.width = 0;
@@ -107,7 +86,7 @@ function updateActivity(activity) {
        battery_bar.width = 0;
        break;
     default:
-       battery_bar.width = (device.modelName === 'Ionic'? 122: 88) * (goals[activity] - today.adjusted[activity])/goals[activity];
+       battery_bar.width = (device.screen.width === 348? 122: 88) * (goals[activity] - today.adjusted[activity])/goals[activity];
        break;
   }
   
@@ -125,7 +104,7 @@ function showHideActivityIcon(activity) {
 
 
 // reading time format preferemces
-dtlib.timeFormat = preferences.clockDisplay == "12h" ? 1: 0;
+dtlib.timeFormat = user_settings.clockDisplay == "12h" ? 1: 0;
 
 // Update the clock every minute
 clock.granularity = "minutes";
@@ -158,7 +137,7 @@ clock.ontick = (evt) => {
    datelbl.text = `${month} ${day}`
    
    dowlbl.text = dtlib.getDowNameShort(dtlib.LANGUAGES.ENGLISH, today.getDay());
-   updateActivity(userSettings.showActivity);
+   updateActivity(preferences.p.showActivity);
  
 }
 
@@ -169,4 +148,4 @@ updateBattery(Math.floor(battery.chargeLevel))
 battery.onchange = () => {updateBattery(Math.floor(battery.chargeLevel))};
 
 //activity
-updateActivity(userSettings.showActivity);
+updateActivity(preferences.p.showActivity);
