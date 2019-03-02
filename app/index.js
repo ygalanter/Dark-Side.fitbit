@@ -40,8 +40,8 @@ asap.onmessage = data => {
      case "showActivity":
           let activity = JSON.parse(data.newValue).values[0].value;
 
-          if (activity === "elevationGain" && today.adjusted.elevationGain === undefined) {
-            break
+          if (activity === "elevationGain" && today.local.elevationGain === undefined) {
+            break;
           }
      
           preferences.p.showActivity = activity;
