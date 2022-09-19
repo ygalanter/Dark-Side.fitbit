@@ -1,0 +1,15 @@
+.background {
+  viewport-fill: black;
+}
+
+.label {
+  font-size: 80;
+  font-family: Seville-Bold-Condensed;
+  text-length: 32;
+  text-anchor: middle;
+  fill: white;
+}
+
+.small {
+  font-size: 40;
+}

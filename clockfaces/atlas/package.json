@@ -1,0 +1,35 @@
+{
+  "fitbit": {
+    "appUUID": "1309f530-6405-42b7-8526-6cfc6db74197",
+    "appType": "clockface",
+    "appDisplayName": "Dark Side",
+    "iconFile": "resources/icon.png",
+    "wipeColor": "",
+    "requestedPermissions": [
+      "access_activity"
+    ],
+    "buildTargets": [
+      "atlas",
+      "vulcan",
+      "hera",
+      "rhea"
+    ],
+    "i18n": {
+      "en": {
+        "name": "Dark Side"
+      }
+    }
+  },
+  "devDependencies": {
+    "@fitbit/sdk": "6.2.0-pre.0",
+    "@fitbit/sdk-build-targets": "file:fitbit-sdk-build-targets-1.6.0-pre.6.tgz",
+    "@fitbit/sdk-cli": "1.8.0-pre.2"
+  },
+  "scripts": {
+    "build": "fitbit-build"
+  },
+  "dependencies": {
+    "fitbit-asap": "^1.0.6",
+    "fitbit-preferences": "^1.0.0"
+  }
+}
